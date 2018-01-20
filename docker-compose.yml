@@ -1,35 +1,31 @@
 version: '2'
 services:
-  apahe2:
-    image: tutum/apache-php
-    environment:
-     - ALLOW_OVERRIDE=true
+  web:
+    image: nginx:latest
     ports:
-     - "80:80"
-    links:
-     - db
+      - "80:80"
     volumes:
-       - ./app:/app
-  php7:
+      - ./code:/code
+      - ./site.conf:/etc/nginx/conf.d/site.conf
+    links:
+      - php
+  php:
     build: ./docker/php7
     ports:
       - "9000"
     volumes:
-      - ./app:/var/www
-    working_dir: /var/www
+      - ./code:/code
+    working_dir: /code
     environment:
       XDEBUG_CONFIG: remote_host=192.168.50.71 #Подставить свой удаленный IP
       PHP_IDE_CONFIG: "serverName=server"
-      WORDPRESS_DB_NAME: db
-      WORDPRESS_TABLE_PREFIX: wp_
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_PASSWORD: root
   db:
+    container_name: db
     build: ./docker/mysql
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: db
+      MYSQL_DATABASE: test
       MYSQL_USER: root
       MYSQL_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
